@@ -1,6 +1,7 @@
 import React from 'react'
 import {SearchBar} from './delivery/SearchBar'
 import {CardNews} from './delivery/CardNews'
+import {Paginator} from './delivery/Paginator'
 
 const App: React.FC = () => {
     const thumbnails = [
@@ -30,6 +31,7 @@ const App: React.FC = () => {
                     </div>,
                 )}
             </div>
+            <Paginator pages={10} current={10}/>
         </div>)
 }
 

@@ -9,9 +9,9 @@ test('Should call handler when the user presses search', async () => {
     render(<SearchBar search={handler}/>)
 
     await act(async () => {
-        await userEvent.type(screen.getByRole('textbox'), 'search-term', {delay: 1})
-        userEvent.click(screen.getByText('Search'))
+        await userEvent.type(screen.getByRole('textbox'), 'term', {delay: 1})
+        userEvent.click(screen.getByRole('button'))
     })
 
-    expect(handler).toHaveBeenCalledWith('search-term')
+    expect(handler).toHaveBeenCalledWith('term')
 })
