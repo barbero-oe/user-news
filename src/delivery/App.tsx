@@ -1,9 +1,10 @@
 import React from 'react'
-import {SearchBar} from './delivery/SearchBar'
-import {CardNews} from './delivery/CardNews'
-import {Paginator} from './delivery/Paginator'
+import {SearchBar} from './searchbar/SearchBar'
+import {CardNews} from './card-news/CardNews'
+import {Paginator} from './paginator/Paginator'
+import {GetNews} from '../domain/usecase/GetNews'
 
-const App: React.FC = () => {
+const App: React.FC<{ news: GetNews }> = ({news}) => {
     const thumbnails = [
         {'url': 'https://picsum.photos/152/107', 'height': 152, 'width': 107},
         {'url': 'https://picsum.photos/336/639', 'height': 336, 'width': 639},

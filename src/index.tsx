@@ -2,12 +2,25 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import App from './App'
+import App from './delivery/App'
 import reportWebVitals from './reportWebVitals'
+import axios from 'axios'
+import {GetNews} from './domain/usecase/GetNews'
+import {HttpNewsApi} from './infrastructure/HttpNewsApi'
+
+const searchApi = axios.create({
+    baseURL: 'https://contextualwebsearch-websearch-v1.p.rapidapi.com/api',
+    headers: {
+        'x-rapidapi-key': process.env.REACT_APP_SEARCH_API_KEY,
+        'x-rapidapi-host': 'contextualwebsearch-websearch-v1.p.rapidapi.com',
+    },
+})
+
+const getNews = new GetNews(new HttpNewsApi(searchApi))
 
 ReactDOM.render(
     <React.StrictMode>
-        <App/>
+        <App news={getNews}/>
     </React.StrictMode>,
     document.getElementById('root'),
 )
