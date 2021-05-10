@@ -8,7 +8,9 @@ export class GetNews {
 
     search = async (term: string, pageSize: number, page: number): Promise<Page<News> | { message: string }> => {
         try {
-            return await this.news.search(term, pageSize, page)
+            const response = await this.news.search(term, pageSize, page)
+            if (response.values.length === 0) return {message: 'No results found'}
+            return response
         } catch (e) {
             console.error(e)
             return {message: 'Please, try again'}

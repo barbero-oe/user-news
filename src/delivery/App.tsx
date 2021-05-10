@@ -18,7 +18,7 @@ export const App: React.FC<{ searchNews: SearchNews }> = ({searchNews}) => {
                        loading={loading}
                        search={term => search(term, 1)}/>
             {message !== ''
-                ? <div className="container"><span className="h1">{message}</span></div>
+                ? <div className="container text-center"><span className="h1">{message}</span></div>
                 : <SearchResult loading={loading} showImage={showImage} news={news} consultPage={consultPage}/>}
         </div>)
 }
@@ -37,12 +37,13 @@ function useSearch(searchNews: SearchNews): SearchState {
     const [message, setMessage] = useState<string>('')
     const [loading, setLoading] = useState(false)
     const search = useCallback(async (term: string, page: number) => {
+        setMessage('')
         setLoading(true)
         const response = await searchNews(term, 6, page)
         setQuery(term)
-        if (isPage(response))
+        if (isPage(response)) {
             setNews(response)
-        else {
+        } else {
             setNews(null)
             setMessage(response.message)
         }

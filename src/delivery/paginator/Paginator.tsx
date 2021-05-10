@@ -53,7 +53,7 @@ interface PageItemProps {
 
 const PageItem: React.FC<PageItemProps> = ({value, active, onClick}) =>
     <li className={`page-item ${active ? 'active' : ''}`}>
-        <a className="page-link" href="#" onClick={() => onClick(value)}>{value}</a>
+        <button className="page-link" onClick={() => onClick(value)}>{value}</button>
     </li>
 
 interface PreviousNextProps {
@@ -68,9 +68,9 @@ const Previous: React.FC<PreviousNextProps> = ({onClick, disabled}) => {
         </li>)
     else return (
         <li className="page-item">
-            <a className="page-link" href="#" aria-label="Previous" onClick={onClick}>
+            <button className="page-link" aria-label="Previous" onClick={onClick}>
                 <span aria-hidden="true">&laquo;</span>
-            </a>
+            </button>
         </li>)
 }
 
@@ -81,8 +81,8 @@ const Next: React.FC<PreviousNextProps> = ({onClick, disabled}) => {
         </li>)
     else return (
         <li className="page-item">
-            <a className="page-link" href="#" aria-label="Next" onClick={onClick}>
+            <button className="page-link" aria-label="Next" onClick={onClick}>
                 <span aria-hidden="true">&raquo;</span>
-            </a>
+            </button>
         </li>)
 }
