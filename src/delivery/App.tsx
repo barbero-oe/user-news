@@ -1,40 +1,70 @@
-import React from 'react'
+import React, {useCallback, useState} from 'react'
 import {SearchBar} from './searchbar/SearchBar'
 import {CardNews} from './card-news/CardNews'
 import {Paginator} from './paginator/Paginator'
-import {GetNews} from '../domain/usecase/GetNews'
+import {Page} from '../domain/model/Page'
+import {News} from '../domain/model/News'
+import {Image} from './Image'
+import {ImageModal} from './image-modal/ImageModal'
 
-const App: React.FC<{ news: GetNews }> = ({news}) => {
-    const thumbnails = [
-        {'url': 'https://picsum.photos/152/107', 'height': 152, 'width': 107},
-        {'url': 'https://picsum.photos/336/639', 'height': 336, 'width': 639},
-        {'url': 'https://picsum.photos/175/350', 'height': 175, 'width': 350},
-        {'url': 'https://picsum.photos/350/640', 'height': 350, 'width': 640},
-        {'url': 'https://picsum.photos/152/107', 'height': 152, 'width': 107},
-        {'url': 'https://picsum.photos/336/639', 'height': 336, 'width': 639},
-        {'url': 'https://picsum.photos/175/350', 'height': 175, 'width': 350},
-        {'url': 'https://picsum.photos/350/640', 'height': 350, 'width': 640},
-    ]
-    const objs = Array.from(Array(6).keys())
-        .map((_, i) => ({
-            description: 'The Wheel of Time TV adaptation released another teaser this week, giving fans their first glimpse at Daniel Henney as al\'Lan Mandragoran.',
-            thumbnail: thumbnails[i],
-        }))
+type SearchNews = (term: string, pageSize: number, page: number) => Promise<Page<News>>
 
+export const App: React.FC<{ searchNews: SearchNews }> = ({searchNews}) => {
+    const [query, setQuery] = useState('')
+    const [news, setNews] = useState<Page<News> | null>(null)
+    const search = useCallback(async (term: string, page: number) => {
+        setQuery(term)
+        setNews(await searchNews(term, 6, page))
+    }, [searchNews])
+    const consultPage = useCallback(page => search(query, page), [query, search])
+    const {showImage, BoundedImageModal} = useImageModal()
     return (
         <div className="container pt-4">
+            <BoundedImageModal/>
             <h1>News Search</h1>
-            <SearchBar search={value => console.log(value)}/>
-            <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3">
-                {objs.map(obj =>
-                    <div className="col my-3">
-                        <CardNews thumbnail={obj.thumbnail} description={obj.description}/>
-                    </div>,
-                )}
-            </div>
-            <Paginator pages={10} current={10}/>
+            <SearchBar search={term => search(term, 1)}/>
+            {news === null ? null :
+                <>
+                    <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3">
+                        {news.values.map(item =>
+                            <div key={item.id} className="col my-3">
+                                <CardNews
+                                    title={item.title}
+                                    description={item.description}
+                                    url={item.url}
+                                    thumbnail={{
+                                        url: item.image.thumbnail,
+                                        width: item.image.width,
+                                        height: item.image.height,
+                                    }}
+                                    onImageClick={() => showImage({
+                                        url: item.image.url,
+                                        width: item.image.width,
+                                        height: item.image.height,
+                                    })}
+                                />
+                            </div>,
+                        )}
+                    </div>
+                    <Paginator pages={news.pages} current={news.current}
+                               onPageChange={consultPage}/>
+                </>
+            }
         </div>)
 }
 
+type ImageModalHook = { showImage: (image: Image) => void, BoundedImageModal: () => JSX.Element }
 
-export default App
+function useImageModal(): ImageModalHook {
+    const showImage = (image: Image) => {
+        setImage(image)
+        setShow(true)
+    }
+    const hide = () => setShow(false)
+    const [show, setShow] = useState(false)
+    const [image, setImage] = useState<Image>({url: '', width: 0, height: 0})
+    return {
+        showImage,
+        BoundedImageModal: () => <ImageModal image={image} show={show} onHide={hide}/>,
+    }
+}

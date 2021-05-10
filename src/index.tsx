@@ -1,8 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import App from './delivery/App'
+import {App} from './delivery/App'
 import reportWebVitals from './reportWebVitals'
 import axios from 'axios'
 import {GetNews} from './domain/usecase/GetNews'
@@ -20,7 +19,7 @@ const getNews = new GetNews(new HttpNewsApi(searchApi))
 
 ReactDOM.render(
     <React.StrictMode>
-        <App news={getNews}/>
+        <App searchNews={getNews.search}/>
     </React.StrictMode>,
     document.getElementById('root'),
 )

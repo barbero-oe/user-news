@@ -5,7 +5,7 @@ export interface News {
     description: string,
     body: string,
     snippet: string,
-    image?: {
+    image: {
         url: string,
         height: number,
         width: number,

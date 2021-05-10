@@ -1,0 +1,8 @@
+.image {
+    object-fit: contain;
+}
+
+.dialog {
+    max-width: 90%;
+    width: max-content;
+}
