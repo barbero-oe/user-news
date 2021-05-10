@@ -6,6 +6,12 @@ export class GetNews {
     constructor(private news: NewsApi) {
     }
 
-    search = async (term: string, pageSize: number, page: number): Promise<Page<News>> =>
-        await this.news.search(term, pageSize, page)
+    search = async (term: string, pageSize: number, page: number): Promise<Page<News> | { message: string }> => {
+        try {
+            return await this.news.search(term, pageSize, page)
+        } catch (e) {
+            console.error(e)
+            return {message: 'Please, try again'}
+        }
+    }
 }

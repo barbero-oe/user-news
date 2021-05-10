@@ -1,70 +1,57 @@
 import React, {useCallback, useState} from 'react'
 import {SearchBar} from './searchbar/SearchBar'
-import {CardNews} from './card-news/CardNews'
-import {Paginator} from './paginator/Paginator'
 import {Page} from '../domain/model/Page'
 import {News} from '../domain/model/News'
-import {Image} from './Image'
-import {ImageModal} from './image-modal/ImageModal'
+import {SearchResult} from './search-result/SearchResult'
+import {useImageModal} from './image-modal/ImageModal'
 
-type SearchNews = (term: string, pageSize: number, page: number) => Promise<Page<News>>
+type SearchNews = (term: string, pageSize: number, page: number) => Promise<Page<News> | { message: string }>
 
 export const App: React.FC<{ searchNews: SearchNews }> = ({searchNews}) => {
-    const [query, setQuery] = useState('')
-    const [news, setNews] = useState<Page<News> | null>(null)
-    const search = useCallback(async (term: string, page: number) => {
-        setQuery(term)
-        setNews(await searchNews(term, 6, page))
-    }, [searchNews])
-    const consultPage = useCallback(page => search(query, page), [query, search])
+    const {news, message, search, consultPage, loading} = useSearch(searchNews)
     const {showImage, BoundedImageModal} = useImageModal()
     return (
         <div className="container pt-4">
             <BoundedImageModal/>
             <h1>News Search</h1>
-            <SearchBar search={term => search(term, 1)}/>
-            {news === null ? null :
-                <>
-                    <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3">
-                        {news.values.map(item =>
-                            <div key={item.id} className="col my-3">
-                                <CardNews
-                                    title={item.title}
-                                    description={item.description}
-                                    url={item.url}
-                                    thumbnail={{
-                                        url: item.image.thumbnail,
-                                        width: item.image.width,
-                                        height: item.image.height,
-                                    }}
-                                    onImageClick={() => showImage({
-                                        url: item.image.url,
-                                        width: item.image.width,
-                                        height: item.image.height,
-                                    })}
-                                />
-                            </div>,
-                        )}
-                    </div>
-                    <Paginator pages={news.pages} current={news.current}
-                               onPageChange={consultPage}/>
-                </>
-            }
+            <SearchBar validationMessage="What news interests you?"
+                       loading={loading}
+                       search={term => search(term, 1)}/>
+            {message !== ''
+                ? <div className="container"><span className="h1">{message}</span></div>
+                : <SearchResult loading={loading} showImage={showImage} news={news} consultPage={consultPage}/>}
         </div>)
 }
 
-type ImageModalHook = { showImage: (image: Image) => void, BoundedImageModal: () => JSX.Element }
+interface SearchState {
+    news: Page<News> | null
+    message: string
+    search: (term: string, page: number) => void
+    consultPage: (page: number) => void
+    loading: boolean
+}
 
-function useImageModal(): ImageModalHook {
-    const showImage = (image: Image) => {
-        setImage(image)
-        setShow(true)
-    }
-    const hide = () => setShow(false)
-    const [show, setShow] = useState(false)
-    const [image, setImage] = useState<Image>({url: '', width: 0, height: 0})
-    return {
-        showImage,
-        BoundedImageModal: () => <ImageModal image={image} show={show} onHide={hide}/>,
-    }
+function useSearch(searchNews: SearchNews): SearchState {
+    const [query, setQuery] = useState('')
+    const [news, setNews] = useState<Page<News> | null>(null)
+    const [message, setMessage] = useState<string>('')
+    const [loading, setLoading] = useState(false)
+    const search = useCallback(async (term: string, page: number) => {
+        setLoading(true)
+        const response = await searchNews(term, 6, page)
+        setQuery(term)
+        if (isPage(response))
+            setNews(response)
+        else {
+            setNews(null)
+            setMessage(response.message)
+        }
+        setLoading(false)
+    }, [searchNews])
+    const consultPage = useCallback(page => search(query, page), [query, search])
+    return {news, message, search, consultPage, loading}
+}
+
+function isPage<T>(response: Page<T> | { message: string }): response is Page<T> {
+    return (response as Page<T>).pages !== undefined
 }

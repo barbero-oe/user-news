@@ -2,3 +2,7 @@
     object-fit: cover;
     height: 8em;
 }
+
+.skeletonCard {
+    min-height: 25em;
+}
