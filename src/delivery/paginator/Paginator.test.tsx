@@ -6,14 +6,14 @@ import {Paginator} from './Paginator'
 test('Should display five pages at the same time', () => {
     render(<Paginator pages={20} current={1}/>)
 
-    expect(screen.getAllByRole('link').map(el => el.textContent))
+    expect(screen.getAllByRole('button').map(el => el.textContent))
         .toEqual(expect.arrayContaining(['1', '2', '3', '4', '5']))
 })
 
 test('Should show previous and next pages', () => {
     render(<Paginator pages={20} current={10}/>)
 
-    expect(screen.getAllByRole('link').map(el => el.textContent))
+    expect(screen.getAllByRole('button').map(el => el.textContent))
         .toEqual(expect.arrayContaining(['8', '9', '10', '11', '12']))
 })
 
@@ -26,7 +26,7 @@ test('Should show current page', () => {
 test('Should show last elements at the end of the pages', () => {
     render(<Paginator pages={20} current={20}/>)
 
-    expect(screen.getAllByRole('link').map(el => el.textContent))
+    expect(screen.getAllByRole('button').map(el => el.textContent))
         .toEqual(expect.arrayContaining(['15', '16', '17', '18', '19', '20']))
 })
 
